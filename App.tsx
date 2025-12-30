@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from './components/Header';
 import FileUpload from './components/FileUpload';
 import AnalysisDashboard from './components/AnalysisDashboard';
@@ -11,27 +11,6 @@ const App: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [hasApiKey, setHasApiKey] = useState<boolean>(true);
-
-  // 检查是否已经选择了 API Key (Gemini 3 系列模型强制要求)
-  useEffect(() => {
-    const checkKey = async () => {
-      if (window.aistudio?.hasSelectedApiKey) {
-        const selected = await window.aistudio.hasSelectedApiKey();
-        setHasApiKey(selected);
-      }
-    };
-    checkKey();
-  }, []);
-
-  const handleSelectKey = async () => {
-    if (window.aistudio?.openSelectKey) {
-      await window.aistudio.openSelectKey();
-      // 根据规范，触发后直接假设成功并进入应用
-      setHasApiKey(true);
-      setError(null);
-    }
-  };
 
   const handleFilesAdded = (newFiles: FileData[]) => {
     setFiles(prev => [...prev, ...newFiles]);
@@ -55,15 +34,10 @@ const App: React.FC = () => {
       setAnalysisResult(result);
     } catch (err: any) {
       console.error("Analysis Error:", err);
-      
       let msg = err.message || '分析失败：未知错误。';
       
-      // 处理特定的权限或失效错误
-      if (msg.includes('Requested entity was not found') || msg.includes('API key not valid')) {
-        msg = '当前 API Key 无效或不具备 Gemini 3 Pro 访问权限。请重新选择具有付费账单的 GCP 项目 Key。';
-        setHasApiKey(false); // 强制重新选择
-      } else if (msg.includes('403')) {
-        msg = '权限拒绝 (403)。请检查您的 API Key 是否已启用 Generative Language API。';
+      if (msg.includes('API_KEY')) {
+        msg = '检测到 API Key 配置异常。请联系系统管理员或检查环境变量配置。';
       }
       
       setError(msg);
@@ -71,36 +45,6 @@ const App: React.FC = () => {
       setIsAnalyzing(false);
     }
   };
-
-  if (!hasApiKey) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-slate-200 text-center">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <i className="fas fa-key text-blue-600 text-2xl"></i>
-          </div>
-          <h2 className="text-2xl font-bold text-slate-800 mb-4">需要配置 API Key</h2>
-          <p className="text-slate-600 mb-6 text-sm leading-relaxed">
-            由于本系统使用 <b>Gemini 3 Pro</b> 深度推理模型进行数学题目分析，您需要选择一个已关联付费账单项目的 API Key。
-          </p>
-          <button 
-            onClick={handleSelectKey}
-            className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg active:scale-95 mb-4"
-          >
-            选择 API Key
-          </button>
-          <a 
-            href="https://ai.google.dev/gemini-api/docs/billing" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-xs text-blue-500 hover:underline flex items-center justify-center gap-1"
-          >
-            了解如何设置付费账单 <i className="fas fa-external-link-alt scale-75"></i>
-          </a>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col selection:bg-blue-100 selection:text-blue-900">
