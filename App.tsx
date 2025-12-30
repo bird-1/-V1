@@ -33,14 +33,9 @@ const App: React.FC = () => {
       const result = await gemini.analyzeQuestions(files);
       setAnalysisResult(result);
     } catch (err: any) {
-      console.error("Analysis Error:", err);
-      let msg = err.message || '分析失败：未知错误。';
-      
-      if (msg.includes('API_KEY')) {
-        msg = '检测到 API Key 配置异常。请联系系统管理员或检查环境变量配置。';
-      }
-      
-      setError(msg);
+      console.error("Analysis Runtime Error:", err);
+      // 直接显示详细错误，帮助判断是否为 API Key 环境注入问题
+      setError(err.message || '分析过程中发生预期外的技术问题。');
     } finally {
       setIsAnalyzing(false);
     }
@@ -78,7 +73,7 @@ const App: React.FC = () => {
                 {isAnalyzing ? (
                   <>
                     <i className="fas fa-spinner fa-spin"></i>
-                    AI 正在诊断题目...
+                    AI 正在研读题目...
                   </>
                 ) : (
                   <>
@@ -106,7 +101,7 @@ const App: React.FC = () => {
               <div className="bg-red-50 border-2 border-red-100 text-red-700 px-6 py-5 rounded-2xl mb-6 flex flex-col gap-3">
                 <div className="flex items-center gap-2 font-bold text-red-800">
                   <i className="fas fa-exclamation-triangle"></i>
-                  <span>分析中断</span>
+                  <span>系统异常</span>
                 </div>
                 <p className="text-sm leading-relaxed">{error}</p>
               </div>
@@ -116,15 +111,15 @@ const App: React.FC = () => {
               <div className="bg-white rounded-3xl border-2 border-dashed border-slate-200 p-20 flex flex-col items-center justify-center text-center">
                 <i className="fas fa-upload text-slate-200 text-5xl mb-6"></i>
                 <h2 className="text-xl font-bold text-slate-700 mb-2">等待上传题目</h2>
-                <p className="text-slate-400 text-sm max-w-xs">上传学生练习卷或题目合集，我们将为您分析苏教版考点的覆盖情况。</p>
+                <p className="text-slate-400 text-sm max-w-xs">上传学生练习卷或题目合集（支持多选），我们将为您分析苏教版考点的覆盖情况。</p>
               </div>
             )}
 
             {isAnalyzing && (
               <div className="bg-white rounded-3xl border border-slate-200 p-20 flex flex-col items-center justify-center text-center">
                 <div className="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-6"></div>
-                <h2 className="text-xl font-bold text-slate-800 mb-2">正在研读试卷内容</h2>
-                <p className="text-slate-400 text-sm animate-pulse">正在提取题目特征并对标苏教版大纲...</p>
+                <h2 className="text-xl font-bold text-slate-800 mb-2">正在进行 AI 诊断</h2>
+                <p className="text-slate-400 text-sm animate-pulse">正在提取题目特征并对标考纲要求，请稍后...</p>
               </div>
             )}
 

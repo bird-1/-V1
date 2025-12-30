@@ -21,26 +21,11 @@ const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({ result }) => {
 
   const getTopicTitle = (id: string) => SYLLABUS.find(t => t.id === id)?.title || id;
 
-  // 根据得分计算勋章样式
-  const getMedalConfig = (score: number) => {
-    if (score >= 90) return { icon: 'fa-award', color: 'text-yellow-400', label: '金章' };
-    if (score >= 80) return { icon: 'fa-award', color: 'text-slate-300', label: '银章' };
-    if (score >= 60) return { icon: 'fa-award', color: 'text-orange-400', label: '铜章' };
-    return { icon: 'fa-certificate', color: 'text-slate-200', label: '基础' };
-  };
-
-  const medal = getMedalConfig(result.overallScore);
-
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 综合得分卡片 */}
         <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[340px]">
-          {/* 动态勋章显示 */}
-          <div className={`absolute top-4 right-4 flex flex-col items-center transition-all duration-1000 transform scale-110`}>
-            <i className={`fas ${medal.icon} ${medal.color} text-4xl drop-shadow-sm`}></i>
-            <span className={`text-[10px] font-black uppercase mt-1 ${medal.color} opacity-80`}>{medal.label}</span>
-          </div>
           
           <div className="relative z-10 flex flex-col items-center justify-center py-4">
              <div className="flex flex-col items-center">
